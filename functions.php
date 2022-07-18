@@ -16,6 +16,12 @@ if(isset($_POST['func']) && !empty($_POST['func'])){
 		case 'addEvent':
 			addEvent($_POST);
 			break;
+		case 'modifyEvent':
+			modifyEvent($_POST);
+			break;
+		case 'deleteEvent':
+			deleteEvent($_POST);
+			break;	
 		default:
 			break;
 	}
@@ -56,6 +62,7 @@ function getCalender($year = '', $month = ''){
 			<div id="event_list">
 				<?php echo getEvents(); ?>
 			</div>
+			<!-- button link to form to add events -->
 			<a href="javascript:void(0);" class="add-event-btn">+add event</a>
 			<div id="event_add_frm" style="display:none;">
 				<form id="eventAddFrm" action="#">
@@ -68,6 +75,36 @@ function getCalender($year = '', $month = ''){
 						<input type="text" class="form-control" name="event_date" id="event_date" value="<?php echo date("Y-m-d"); ?>" readonly>
 					</div>
 					<input type="submit" name="event_submit" class="btn btn-default" value="Submit">
+				</form>
+			</div>
+			<!-- button link to form to modify events -->
+			<a href="javascript:void(0);" class="modify-event-btn">@modify event</a>
+			<div id="event_modify_frm" style="display:none;">
+				<form id="eventModifyFrm" action="#">
+					<div class="form-group">
+						<label>Event Title:</label>
+						<input type="text" class="form-control" name="event_title" id="event_title" required>
+					</div>
+					<div class="form-group">
+						<label>Date:</label>
+						<input type="text" class="form_control" name="event_date" id="event_date" value="<?php echo date("Y-m-d"); ?>" readonly>
+					</div>
+                    <input type="submit" name="event_submit" class="btn btn-default" value="Submit">
+				</form>
+			</div>
+			<!-- button link to form to delete events -->
+			<a href="javascript:void(0);" class="delete-event-btn">-delete event</a>
+			<div id="event_delete_frm" style="display:none;">
+				<form id="eventDeleteFrm" action="#">
+					<div class="form-group">
+						<label>Event Title:</label>
+						<input type="text" class="form-control" name="event_title" id="event_title" required>
+					</div>
+					<div class="form-group">
+						<label>Date:</label>
+						<input type="text" class="form_control" name="event_date" id="event_date" value="<?php echo date("Y-m-d"); ?>" readonly>
+					</div>
+                    <input type="submit" name="event_submit" class="btn btn-default" value="Submit">
 				</form>
 			</div>
 		</aside>
@@ -193,6 +230,14 @@ function getCalender($year = '', $month = ''){
 			$('.add-event-btn').on('click',function(){
 				$('#event_add_frm').slideToggle();
 			});
+
+			$('.modify-event-btn').on('click',function(){
+				$('#event_modify_frm').slideToggle();
+			});
+			
+			$('.delete-event-btn').on('click',function(){
+				$('#event_delete_frm').slideToggle();
+			});
 			
 			$('#eventAddFrm').submit(function(event){
 				event.preventDefault();
@@ -219,6 +264,58 @@ function getCalender($year = '', $month = ''){
 					}
 				});
 			});
+
+			$('#eventModifyFrm').submit(function(event){
+				event.preventDefault();
+				$(':input[type="submit"]').prop('disabled', true);
+				$('#event_modify_frm').css('opacity', '0.5');	
+				$.ajax({
+					type:'POST',
+					url:'functions.php',
+					data:$('#eventModifyFrm').serialize()+'&func=modifyEvent',
+					success:function(status){
+						if(status == 1){
+							//$('#eventModifyFrm')[0].reset();
+							$('#event_title').val('');
+							swal("Success!", "Event modified successfully.", "success");
+						}else{
+							swal("Failed!", "Something went wrong, please try again.", "error");
+						}
+						$(':input[type="submit"]').prop('disabled', false);
+						$('#event_modify_frm').css('opacity', '');
+						
+						var date = $('#event_date').val();
+						var dateSplit = date.split("-");
+						getCalendarEvents('calendar_div', dateSplit[0], dateSplit[1], date);
+					}
+				});
+			});
+
+			$('#eventDeleteFrm').submit(function(event){
+				event.preventDefault();
+				$(':input[type="submit"]').prop('disabled', true);
+				$('#event_delete_frm').css('opacity', '0.5');
+				$.ajax({
+					type:'POST',
+					url:'functions.php',
+					data:$('#eventDeleteFrm').serialize()+'&func=deleteEvent',
+					success:function(status){
+						if(status == 1){
+							//$('#eventDeleteFrm')[0].reset();
+							$('#event_title').val('');
+							swal("Success!", "Event deleted successfully.", "success");
+						}else{
+							swal("Failed!", "Something went wrong, please try again.", "error");
+						}
+						$(':input[type="submit"]').prop('disabled', false);
+						$('#event_delete_frm').css('opacity', '');
+						
+						var date = $('#event_date').val();
+						var dateSplit = date.split("-");
+						getCalendarEvents('calendar_div', dateSplit[0], dateSplit[1], date);
+					}
+				});
+			});	
 		});
 	</script>
 <?php
@@ -291,4 +388,37 @@ function addEvent($postData){
 	}
 	
 	echo $status;
+}
+
+function modifyEvent($postData){
+	$status = 0;
+	if(!empty($postData['event_title']) && !empty($postData['event_date'])){
+		global $db;
+		$event_title = $db->real_escape_string($postData['event_title']);
+		// $insert = $db->query("INSERT INTO events (title, date) VALUES ('".$event_title."', '".$postData['event_date']."')");
+		$modify = $db->query("UPDATE events SET title=".$event_title." WHERE date=".$postData['event_date']."");
+
+		if($modify){
+			$status = 1;
+		}
+	}
+	
+	echo $status;	
+}
+
+function deleteEvent($postData){
+	$status = 0;
+	if(!empty($postData['event_title']) && !empty($postData['event_date'])){
+		global $db;
+		$event_title = $db->real_escape_string($postData['event_title']);
+		// $insert = $db->query("INSERT INTO events (title, date) VALUES ('".$event_title."', '".$postData['event_date']."')");
+		// $insert = $db->query("UPDATE events SET title=".$event_title." WHERE date=".$postData['event_date']."");
+		$delete = $db->query("DELETE FROM events WHERE title=".$event_title." AND date=".$postData['event_date']."");
+
+		if($delete){
+			$status = 1;
+		}
+	}
+	
+	echo $status;		
 }

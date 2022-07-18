@@ -89,6 +89,7 @@ function getCalender($year = '', $month = ''){
 						<label>Date:</label>
 						<input type="text" class="form_control" name="event_date" id="event_date" value="<?php echo date("Y-m-d"); ?>" readonly>
 					</div>
+                    <input type="submit" name="event_submit" class="btn btn-default" value="Submit">
 				</form>
 			</div>
 			<!-- button link to form to delete events -->
@@ -103,6 +104,7 @@ function getCalender($year = '', $month = ''){
 						<label>Date:</label>
 						<input type="text" class="form_control" name="event_date" id="event_date" value="<?php echo date("Y-m-d"); ?>" readonly>
 					</div>
+                    <input type="submit" name="event_submit" class="btn btn-default" value="Submit">
 				</form>
 			</div>
 		</aside>
