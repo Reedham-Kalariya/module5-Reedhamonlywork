@@ -1,6 +1,6 @@
 <?php
 // Include calendar helper functions
-require_once 'functions.php';
+require_once 'functionsNew.php';
 ?>
 
 <!DOCTYPE html>
