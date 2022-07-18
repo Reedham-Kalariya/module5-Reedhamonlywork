@@ -1,8 +1,8 @@
 <?php
 // Database configuration
 $dbHost     = "localhost";
-$dbUsername = "ENTER_YOUR_USERNAME_HERE";
-$dbPassword = "ENTER_YOUR_PASSWORD_HERE";
+$dbUsername = "wustl_inst";
+$dbPassword = "wustl_pass";
 $dbName     = "calendar";
 
 // Create database connection
